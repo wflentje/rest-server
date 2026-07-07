@@ -1,0 +1,41 @@
+openapi: 3.0.3
+
+info:
+  title: REST Server Reference API
+  version: 1.0.0
+  description: |
+    A reference REST API built with Go, net/http, and OpenAPI.
+
+servers:
+  - url: http://localhost:8080
+
+tags:
+  - name: Health
+    description: Service health endpoints
+
+paths:
+  /hello:
+    get:
+      tags:
+        - Health
+      summary: Hello World endpoint
+      description: Returns a simple greeting.
+      operationId: getHello
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HelloResponse"
+
+components:
+  schemas:
+    HelloResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: Hello, World!
