@@ -26,3 +26,6 @@ security:
 
 clean:
 	rm -rf bin
+
+run-dev:
+	./scripts/dev.sh

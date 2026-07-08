@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"github.com/wflentje/rest-server/internal/api"
+	"github.com/wflentje/rest-server/internal/config"
 	"github.com/wflentje/rest-server/internal/handlers"
 	"github.com/wflentje/rest-server/internal/logging"
 	"github.com/wflentje/rest-server/internal/middleware"
@@ -23,7 +25,15 @@ const (
 )
 
 func main() {
-	logger := logging.NewLogger()
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
+
+	logger, err := logging.NewLogger(cfg.Logging)
+	if err != nil {
+		log.Fatalf("failed to create logger: %v", err)
+	}
 
 	server := handlers.NewServer()
 
@@ -32,12 +42,12 @@ func main() {
 	handler = middleware.Recoverer(logger, handler)
 
 	httpServer := &http.Server{
-		Addr:              serverAddr,
+		Addr:              cfg.Server.Address,
 		Handler:           handler,
-		ReadTimeout:       readTimeout,
-		ReadHeaderTimeout: readHeaderTimeout,
-		WriteTimeout:      writeTimeout,
-		IdleTimeout:       idleTimeout,
+		ReadTimeout:       cfg.Server.ReadTimeout,
+		ReadHeaderTimeout: cfg.Server.ReadHeaderTimeout,
+		WriteTimeout:      cfg.Server.WriteTimeout,
+		IdleTimeout:       cfg.Server.IdleTimeout,
 	}
 
 	// Start the HTTP server in a separate goroutine so the main goroutine
