@@ -10,6 +10,9 @@ run:
 build:
 	go build -o bin/rest-server ./cmd/server
 
+build-windows:
+	GOOS=windows GOARCH=amd64 go build -o bin/rest-server.exe ./cmd/server
+
 test:
 	go test ./...
 
@@ -29,3 +32,7 @@ clean:
 
 run-dev:
 	./scripts/dev.sh
+
+# Windows (requires PowerShell)
+run-windows:
+	powershell -ExecutionPolicy Bypass -File scripts/dev.ps1
