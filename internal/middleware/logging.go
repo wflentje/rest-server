@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -17,7 +17,7 @@ func (rw *responseWriter) WriteHeader(statusCode int) {
 	rw.ResponseWriter.WriteHeader(statusCode)
 }
 
-func RequestLogger(next http.Handler) http.Handler {
+func RequestLogger(logger *slog.Logger, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
@@ -30,13 +30,12 @@ func RequestLogger(next http.Handler) http.Handler {
 
 		path := sanitizeLogValue(r.URL.Path)
 
-		// #nosec G706 -- request path is sanitized before logging to prevent log injection.
-		log.Printf(
-			"%s %s %d %s",
-			r.Method,
-			path,
-			rw.statusCode,
-			time.Since(start),
+		logger.Info(
+			"request complete",
+			"method", r.Method,
+			"path", path,
+			"status", rw.statusCode,
+			"duration", time.Since(start),
 		)
 	})
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/wflentje/rest-server/internal/api"
 	"github.com/wflentje/rest-server/internal/handlers"
+	"github.com/wflentje/rest-server/internal/logging"
 	"github.com/wflentje/rest-server/internal/middleware"
 )
 
@@ -23,10 +23,13 @@ const (
 )
 
 func main() {
+	logger := logging.NewLogger()
+
 	server := handlers.NewServer()
+
 	handler := api.Handler(server)
-	handler = middleware.RequestLogger(handler)
-	handler = middleware.Recoverer(handler)
+	handler = middleware.RequestLogger(logger, handler)
+	handler = middleware.Recoverer(logger, handler)
 
 	httpServer := &http.Server{
 		Addr:              serverAddr,
@@ -40,10 +43,11 @@ func main() {
 	// Start the HTTP server in a separate goroutine so the main goroutine
 	// can wait for an OS shutdown signal.
 	go func() {
-		log.Printf("Listening on %s", httpServer.Addr)
+		logger.Info("server starting", "address", httpServer.Addr)
 
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("server failed: %v", err)
+			logger.Error("server failed", "error", err)
+			os.Exit(1)
 		}
 	}()
 
@@ -58,15 +62,16 @@ func main() {
 	// Block until a shutdown signal is received.
 	<-shutdownCtx.Done()
 
-	log.Println("Shutdown signal received")
+	logger.Info("shutdown signal received")
 
 	// Allow up to 10 seconds for active requests to complete.
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	if err := httpServer.Shutdown(ctx); err != nil {
-		log.Fatalf("server shutdown failed: %v", err)
+		logger.Error("server shutdown failed", "error", err)
+		os.Exit(1)
 	}
 
-	log.Println("Server stopped")
+	logger.Info("server stopped")
 }

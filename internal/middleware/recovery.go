@@ -1,17 +1,22 @@
 package middleware
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
 )
 
 // Recoverer catches panics from downstream handlers and returns
 // an HTTP 500 response instead of terminating the server.
-func Recoverer(next http.Handler) http.Handler {
+func Recoverer(logger *slog.Logger, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				log.Printf("panic: %v", err)
+				logger.Error(
+					"handler panic",
+					"panic", err,
+					"method", r.Method,
+					"path", r.URL.Path,
+				)
 
 				http.Error(
 					w,
