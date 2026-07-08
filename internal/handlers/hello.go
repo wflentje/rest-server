@@ -8,7 +8,7 @@ import (
 	"github.com/wflentje/rest-server/internal/api"
 )
 
-func (s *Server) GetHello(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetHello(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, api.HelloResponse{
 		Message: "Hello, World!",
 	})

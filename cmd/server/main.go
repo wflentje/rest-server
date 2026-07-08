@@ -14,14 +14,7 @@ import (
 	"github.com/wflentje/rest-server/internal/handlers"
 	"github.com/wflentje/rest-server/internal/logging"
 	"github.com/wflentje/rest-server/internal/middleware"
-)
-
-const (
-	serverAddr        = ":8080"
-	readTimeout       = 15 * time.Second
-	readHeaderTimeout = 5 * time.Second
-	writeTimeout      = 15 * time.Second
-	idleTimeout       = 60 * time.Second
+	"github.com/wflentje/rest-server/internal/server"
 )
 
 func main() {
@@ -35,20 +28,13 @@ func main() {
 		log.Fatalf("failed to create logger: %v", err)
 	}
 
-	server := handlers.NewServer()
+	apiHandler := handlers.NewHandler()
 
-	handler := api.Handler(server)
+	handler := api.Handler(apiHandler)
 	handler = middleware.RequestLogger(logger, handler)
 	handler = middleware.Recoverer(logger, handler)
 
-	httpServer := &http.Server{
-		Addr:              cfg.Server.Address,
-		Handler:           handler,
-		ReadTimeout:       cfg.Server.ReadTimeout,
-		ReadHeaderTimeout: cfg.Server.ReadHeaderTimeout,
-		WriteTimeout:      cfg.Server.WriteTimeout,
-		IdleTimeout:       cfg.Server.IdleTimeout,
-	}
+	httpServer := server.New(cfg.Server, handler)
 
 	// Start the HTTP server in a separate goroutine so the main goroutine
 	// can wait for an OS shutdown signal.
