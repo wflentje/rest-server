@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -11,6 +10,8 @@ import (
 	"time"
 
 	"github.com/wflentje/rest-server/internal/api"
+	"github.com/wflentje/rest-server/internal/handlers"
+	"github.com/wflentje/rest-server/internal/middleware"
 )
 
 const (
@@ -21,27 +22,11 @@ const (
 	idleTimeout       = 60 * time.Second
 )
 
-type Server struct{}
-
-func (s *Server) GetHello(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, http.StatusOK, api.HelloResponse{
-		Message: "Hello, World!",
-	})
-}
-
-func writeJSON(w http.ResponseWriter, status int, body any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-
-	if err := json.NewEncoder(w).Encode(body); err != nil {
-		log.Printf("failed to write response: %v", err)
-	}
-}
-
 func main() {
-	server := &Server{}
-
+	server := handlers.NewServer()
 	handler := api.Handler(server)
+	handler = middleware.RequestLogger(handler)
+	handler = middleware.Recoverer(handler)
 
 	httpServer := &http.Server{
 		Addr:              serverAddr,
