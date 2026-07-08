@@ -6,15 +6,14 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"rest-server/internal/api"
+	"rest-server/internal/config"
+	"rest-server/internal/handlers"
+	"rest-server/internal/logging"
+	"rest-server/internal/middleware"
+	"rest-server/internal/server"
 	"syscall"
 	"time"
-
-	"github.com/wflentje/rest-server/internal/api"
-	"github.com/wflentje/rest-server/internal/config"
-	"github.com/wflentje/rest-server/internal/handlers"
-	"github.com/wflentje/rest-server/internal/logging"
-	"github.com/wflentje/rest-server/internal/middleware"
-	"github.com/wflentje/rest-server/internal/server"
 )
 
 func main() {

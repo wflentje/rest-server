@@ -4,8 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-
-	"github.com/wflentje/rest-server/internal/api"
+	"rest-server/internal/api"
 )
 
 func (h *Handler) GetHello(w http.ResponseWriter, r *http.Request) {

@@ -2,8 +2,7 @@ package server
 
 import (
 	"net/http"
-
-	"github.com/wflentje/rest-server/internal/config"
+	"rest-server/internal/config"
 )
 
 func New(cfg config.ServerConfig, handler http.Handler) *http.Server {

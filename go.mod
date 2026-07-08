@@ -1,4 +1,4 @@
-module github.com/wflentje/rest-server
+module rest-server
 
 go 1.26.4
 

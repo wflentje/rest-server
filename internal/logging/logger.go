@@ -5,8 +5,7 @@ import (
 	"io"
 	"log/slog"
 	"os"
-
-	"github.com/wflentje/rest-server/internal/config"
+	"rest-server/internal/config"
 )
 
 func NewLogger(cfg config.LoggingConfig) (*slog.Logger, error) {
